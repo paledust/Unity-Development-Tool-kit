@@ -8,7 +8,12 @@
 /[Bb]uild/
 /[Bb]uilds/
 /[Ll]ogs/
+/[Ee]xtraAudio/
 /[Uu]ser[Ss]ettings/
+/Assets/TestGround
+/Assets/DevelopingFeatures
+/Assets/[Aa]mplify[Ss]hader[Ee]ditor/
+/Assets/[Aa]mplify[Ss]hader[Ee]ditor.meta
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
