@@ -10,7 +10,10 @@ public static class EventHandler
     public static void Call_BeforeUnloadScene(){E_BeforeUnloadScene?.Invoke();}
     public static event Action E_AfterLoadScene;
     public static void Call_AfterLoadScene(){E_AfterLoadScene?.Invoke();}
-    
+    public static event Action E_OnBeginSave;
+    public static void Call_OnBeginSave()=>E_OnBeginSave?.Invoke();
+    public static event Action E_OnCompleteSave;
+    public static void Call_OnCompleteSave()=>E_OnCompleteSave?.Invoke();
 }
 
 //A More Strict Event System

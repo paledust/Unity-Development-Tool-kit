@@ -14,6 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bgm_info_list: []
   amb_info_list: []
-  sfx_info_list:
-  - audio_name: sfx_bell
-    audio_clip: {fileID: 8300000, guid: 2ee6aed874b061447874a094fe59dd05, type: 3}
+  sfx_info_list: []
+  sfx_group_info_list: []
