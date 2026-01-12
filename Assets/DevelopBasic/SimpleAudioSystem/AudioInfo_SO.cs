@@ -18,9 +18,12 @@ namespace SimpleAudioSystem{
             return amb_info_list.Find(x=>x.audio_name == audio_name).audio_clip;
         }
         public AudioClip GetSFXClipByName(string audio_name){
-            return sfx_info_list.Find(x=>x.audio_name == audio_name).audio_clip;
+            if(audio_name.Contains("group"))
+                return GetSFXClipFromGroupByName(audio_name);
+            else
+                return sfx_info_list.Find(x=>x.audio_name == audio_name).audio_clip;
         }
-        public AudioClip GetSFXClipFromGroupByName(string audio_group_name){
+        AudioClip GetSFXClipFromGroupByName(string audio_group_name){
             var clipGroup = sfx_group_info_list.Find(x=>x.audio_group_name == audio_group_name);
             if(clipGroup!=null) return clipGroup.GetAudioClip();
             else return null;
