@@ -4,6 +4,7 @@ using System.IO;
 using Newtonsoft.Json;
 using UnityEngine;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 
 namespace SimpleSaveSystem{
     public enum Serializer{Json, Binary}
@@ -12,19 +13,42 @@ namespace SimpleSaveSystem{
         public const string GLOBALFILE_NAME = "Global.sav";
         public const string SAVEFILE_NAME = "Data.sav";
         public static GlobalSaveData globalSaveData;
+
+        static string GetPersistentDataPath(string folderName)
+        {
+        #if UNITY_EDITOR             
+            return Application.dataPath + "/AddressableLocal/data/" + folderName;
+        #else
+            return Application.persistentDataPath + "/" + folderName;
+        #endif
+        }
         public static void CleanGameState(int slotIndex){
             string filePath = Application.persistentDataPath + SAVEFILE_DIRECTOR + $"/{slotIndex}/" + SAVEFILE_NAME;
             if(File.Exists(filePath)) File.Delete(filePath);
+        }
+        public static async UniTask NewGameState(int slotIndex)
+        {
+            CleanGameState(slotIndex);
+            string folderPath = GetPersistentDataPath(SAVEFILE_DIRECTOR) + $"/{slotIndex}/";
+
+            var saveData = new SaveData();
+            SaveEventHandler.Call_OnBeginSave();
+            await Task.Run(()=>
+            {
+                Save(folderPath, SAVEFILE_NAME, saveData);
+            });
+            await Task.Delay(500);
+            SaveEventHandler.Call_OnCompleteSave();
         }
         public static async void SaveGameState(int slotIndex){
             string globalFolderPath = Application.persistentDataPath + SAVEFILE_DIRECTOR;
             string folderPath = Application.persistentDataPath + SAVEFILE_DIRECTOR + $"/{slotIndex}/";
 
         //To save, we first Load
-            var saveData = Load<SaveData>(folderPath, SAVEFILE_NAME, Serializer.Json);
+            var saveData = Load<SaveData>(folderPath, SAVEFILE_NAME);
             if(saveData == null) saveData = new SaveData();
 
-            EventHandler.Call_OnBeginSave();
+            SaveEventHandler.Call_OnBeginSave();
         //Capture State
             ISaveable[] saveables = Service.FindComponentsOfTypeIncludingDisable<ISaveable>();
             await Task.Run(()=>{
@@ -32,20 +56,20 @@ namespace SimpleSaveSystem{
                     saveable.CaptureState(ref saveData);
                 }
             //Save to file
-                Save(folderPath, SAVEFILE_NAME, saveData, Serializer.Json);
+                Save(folderPath, SAVEFILE_NAME, saveData);
 
             //Save Global
-                Save(globalFolderPath, GLOBALFILE_NAME, globalSaveData, Serializer.Json);
+                Save(globalFolderPath, GLOBALFILE_NAME, globalSaveData);
             });
             Debug.Log($"{saveables.Length} saveables in scene are saved into Save Slot {slotIndex}.");
             await Task.Delay(500);
             
-            EventHandler.Call_OnCompleteSave();
+            SaveEventHandler.Call_OnCompleteSave();
         }
 
         public static void LoadGameState(int slotIndex){
             string path = Application.persistentDataPath + SAVEFILE_DIRECTOR + $"/{slotIndex}/";
-            var saveData = Load<SaveData>(path, SAVEFILE_NAME, Serializer.Json);
+            var saveData = Load<SaveData>(path, SAVEFILE_NAME);
             if(saveData == null){
                 Debug.LogWarning("No Valid Save Data");
                 return;
@@ -68,21 +92,21 @@ namespace SimpleSaveSystem{
         // Create global save file if not found
             if(!File.Exists(globalFilePath)){
                 globalSaveData = new GlobalSaveData();
-                Save(folderPath, GLOBALFILE_NAME, globalSaveData, Serializer.Json);
+                Save(folderPath, GLOBALFILE_NAME, globalSaveData);
             }
             else{
-                globalSaveData = Load<GlobalSaveData>(folderPath, GLOBALFILE_NAME, Serializer.Json);
+                globalSaveData = Load<GlobalSaveData>(folderPath, GLOBALFILE_NAME);
                 if(globalSaveData==null) globalSaveData = new GlobalSaveData();
             }
         }
     #region Save and Load File
-        static void Save<T>(string folderPath, string fileName, T saveData, Serializer serializer){
+        static void Save<T>(string folderPath, string fileName, T saveData, Serializer serializer = Serializer.Json){
             if(!Directory.Exists(folderPath)){
                 Directory.CreateDirectory(folderPath);
             }
             SerializeData<T>(folderPath+fileName, saveData, serializer);
         }
-        static T Load<T>(string folderPath, string fileName, Serializer serializer){
+        static T Load<T>(string folderPath, string fileName, Serializer serializer = Serializer.Json){
             if(!File.Exists(folderPath+fileName)){
                 return default(T);
             }
