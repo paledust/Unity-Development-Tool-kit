@@ -1,0 +1,18 @@
+{
+    "name": "DevBasic.AudioSystem",
+    "rootNamespace": "",
+    "references": [
+        "GUID:4e4f042045037da46a51ea65025cc4ee",
+        "GUID:0dc0e981680790d4b8f6605d9c759d42",
+        "GUID:9e860697aa54526438c406be06f725be"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

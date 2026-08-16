@@ -6,22 +6,23 @@ using UnityEngine;
 namespace SimpleSaveSystem
 {
     [Serializable]
-    public class GlobalSaveData{
+    public class GlobalSaveData
+    {
         public string currentScene = string.Empty;
         public int MaxLevelIndex = 0;
     }
     [Serializable]
-    public class SettingSaveData{
-
-    }
+    public class SettingSaveData{}
     [Serializable]
-    public class PlayerSaveData{
+    public class PlayerSaveData
+    {
         public Vector3 playerPos;
         public Quaternion playerRot;
         public Quaternion camRot;
     }
     [Serializable]
-    public class SaveData{
+    public class SaveData
+    {
         public PlayerSaveData playerSaveData;
     }
 }

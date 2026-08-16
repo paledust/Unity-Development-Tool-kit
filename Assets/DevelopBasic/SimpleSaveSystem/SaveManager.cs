@@ -1,9 +1,9 @@
+using UnityEngine;
+using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 using System.IO;
 using Newtonsoft.Json;
-using UnityEngine;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 
 namespace SimpleSaveSystem{
@@ -33,14 +33,14 @@ namespace SimpleSaveSystem{
 
             var saveData = new SaveData();
             SaveEventHandler.Call_OnBeginSave();
-            await Task.Run(()=>
+            await UniTask.RunOnThreadPool(()=>
             {
                 Save(folderPath, SAVEFILE_NAME, saveData);
             });
-            await Task.Delay(500);
+            await UniTask.Delay(500);
             SaveEventHandler.Call_OnCompleteSave();
         }
-        public static async void SaveGameState(int slotIndex){
+        public static async UniTask SaveGameState(int slotIndex){
             string globalFolderPath = Application.persistentDataPath + SAVEFILE_DIRECTOR;
             string folderPath = Application.persistentDataPath + SAVEFILE_DIRECTOR + $"/{slotIndex}/";
 
@@ -50,8 +50,8 @@ namespace SimpleSaveSystem{
 
             SaveEventHandler.Call_OnBeginSave();
         //Capture State
-            ISaveable[] saveables = Service.FindComponentsOfTypeIncludingDisable<ISaveable>();
-            await Task.Run(()=>{
+            ISaveable[] saveables = FindAllSaveableIncludingDisable();
+            await UniTask.RunOnThreadPool(()=>{
                 foreach(var saveable in saveables){
                     saveable.CaptureState(ref saveData);
                 }
@@ -62,7 +62,8 @@ namespace SimpleSaveSystem{
                 Save(globalFolderPath, GLOBALFILE_NAME, globalSaveData);
             });
             Debug.Log($"{saveables.Length} saveables in scene are saved into Save Slot {slotIndex}.");
-            await Task.Delay(500);
+            
+            await UniTask.Delay(500);
             
             SaveEventHandler.Call_OnCompleteSave();
         }
@@ -75,7 +76,7 @@ namespace SimpleSaveSystem{
                 return;
             }
 
-            ISaveable[] saveables = Service.FindComponentsOfTypeIncludingDisable<ISaveable>();
+            ISaveable[] saveables = FindAllSaveableIncludingDisable();
             foreach(ISaveable saveable in saveables){
                 saveable.RestoreState(saveData);
             }
@@ -176,6 +177,23 @@ namespace SimpleSaveSystem{
             formatter.SurrogateSelector = selector;
 
             return formatter;
+        }
+        static ISaveable[] FindAllSaveableIncludingDisable(){
+            int sceneCount = UnityEngine.SceneManagement.SceneManager.sceneCount;
+            var MatchObjects = new List<ISaveable> ();
+
+            for(int i=0; i<sceneCount; i++){
+                var scene = UnityEngine.SceneManagement.SceneManager.GetSceneAt (i);
+            
+                var RootObjects = scene.GetRootGameObjects ();
+
+                foreach (var obj in RootObjects) {
+                    var Matches = obj.GetComponentsInChildren<ISaveable> (true);
+                    MatchObjects.AddRange (Matches);
+                }
+            }
+
+            return MatchObjects.ToArray ();
         }
     }
 }

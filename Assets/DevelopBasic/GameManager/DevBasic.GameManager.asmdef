@@ -1,0 +1,20 @@
+{
+    "name": "DevBasic.GameManager",
+    "rootNamespace": "",
+    "references": [
+        "GUID:4e4f042045037da46a51ea65025cc4ee",
+        "GUID:0dc0e981680790d4b8f6605d9c759d42",
+        "GUID:9e860697aa54526438c406be06f725be",
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
